@@ -47,6 +47,17 @@ def important_word_extract(args):
 
     total_src_list, total_trg_list = data_load(data_path=args.data_path, data_name=args.data_name)
 
+    # Data split
+    if total_split_num == 1:
+        pass
+    else:
+        if total_split_num < split_num:
+            raise Exception("'split_num' is greater than 'total_split_num'. Check the number")
+        else:
+            split_ix = [x.tolist() for x in np.array_split(range(len(total_src_list['train'])), args.total_split_num)]
+
+            total_src_list['train'] = total_src_list['train'][split_ix[args.split_num]]
+
     # Data dictionary setting
     data_ = dict()
     for i in range(len(total_src_list['train'])):

@@ -53,6 +53,10 @@ if __name__=='__main__':
                         help='; Default is 100')
     parser.add_argument('--word_importance_topk', default=5, type=int,
                         help='; Default is 5')
+    parser.add_argument('--total_split_num', default=1, type=int,
+                        help='; Default is 1')
+    parser.add_argument('--split_num', default=1, type=int,
+                        help='; Default is 1')
     # Preprocessing setting
     parser.add_argument('--src_max_len', default=300, type=int,
                         help='Source input maximum length; Default is 300')
