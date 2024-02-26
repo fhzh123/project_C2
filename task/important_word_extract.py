@@ -48,10 +48,10 @@ def important_word_extract(args):
     total_src_list, total_trg_list = data_load(data_path=args.data_path, data_name=args.data_name)
 
     # Data split
-    if total_split_num == 1:
+    if args.total_split_num == 1:
         pass
     else:
-        if total_split_num < split_num:
+        if args.total_split_num < args.split_num:
             raise Exception("'split_num' is greater than 'total_split_num'. Check the number")
         else:
             split_ix = [x.tolist() for x in np.array_split(range(len(total_src_list['train'])), args.total_split_num)]
@@ -101,7 +101,7 @@ def important_word_extract(args):
         elif args.word_importance_method == 'Lime':
             explainer = LimeTextExplainer(class_names=class_names)
 
-        for i, text in enumerate(tqdm(total_src_list['train'][:3])):
+        for i, text in enumerate(tqdm(total_src_list['train'])):
 
             model.zero_grad()
 
