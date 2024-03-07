@@ -47,7 +47,7 @@ if __name__=='__main__':
     parser.add_argument('--result_path', default=f'/nas_homes/{user_name}/results/project_C2', type=str,
                         help='Results file path')
     # Word improtance extract setting
-    parser.add_argument('--word_importance_method', default='Lime', choices=['Lime', 'Integrated_Gradients'],
+    parser.add_argument('--word_importance_method', default='Integrated_Gradients', choices=['Lime', 'Integrated_Gradients'],
                         help='')
     parser.add_argument('--n_steps', default=100, type=int,
                         help='; Default is 100')

@@ -153,6 +153,8 @@ def important_word_extract(args):
                     else:
                         important_word.append(word_)
 
+                total_results = [(a,b) for a,b in zip(important_word, attributions_[attributions_.topk(args.word_importance_topk)[1]].tolist())]
+
             elif args.word_importance_method == 'Lime':
                 exp = explainer.explain_instance(text, predictor, num_features=args.word_importance_topk, num_samples=500)
                 total_results = exp.as_list()
