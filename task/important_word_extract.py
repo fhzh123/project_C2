@@ -138,7 +138,7 @@ def important_word_extract(args):
 
                 attributions_ig, delta = lig.attribute(input_ids, reference_indices,
                                                     additional_forward_args=(attention_mask, token_type_ids),
-                                                    n_steps=args.n_steps, return_convergence_delta=True, internal_batch_size=48, target=pred_ind)
+                                                    n_steps=args.n_steps, return_convergence_delta=True, internal_batch_size=args.batch_size, target=pred_ind)
 
                 attributions_ = attributions_ig.sum(dim=2).squeeze(0)
                 attributions_ = attributions_ / torch.norm(attributions_)
@@ -165,6 +165,6 @@ def important_word_extract(args):
             data_[i]['text'] = text
             data_[i][model_name] = total_results
 
-    save_path = os.path.join(args.preprocess_path, f'important_word_{args.word_importance_method}_{args.data_name}_{args.word_importance_topk}.json')
+    save_path = os.path.join(args.preprocess_path, f'important_word_{args.word_importance_method}_{args.data_name}_{args.word_importance_topk}_{args.split_num}_{args.total_split_num}.json')
     with open(save_path, 'w') as f:
         json.dump(data_, f)
