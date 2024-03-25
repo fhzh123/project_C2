@@ -63,7 +63,10 @@ def important_word_extract(args):
     for i in range(len(total_src_list['train'])):
         data_[i] = dict()
 
-    model_name_list = ['lvwerra/bert-imdb', 'fabriceyhc/bert-base-uncased-imdb', 'aychang/roberta-base-imdb', 'lvwerra/distilbert-imdb', 'JiaqiLee/imdb-finetuned-bert-base-uncased']
+    if args.data_name == 'IMDB':
+        model_name_list = ['lvwerra/bert-imdb', 'fabriceyhc/bert-base-uncased-imdb', 'aychang/roberta-base-imdb', 'lvwerra/distilbert-imdb', 'JiaqiLee/imdb-finetuned-bert-base-uncased']
+    elif args.data_name == 'SNLI':
+        model_name_list = ['Alireza1044/albert-base-v2-mnli', "cross-encoder/nli-distilroberta-base", 'cross-encoder/nli-deberta-v3-base', 'sileod/deberta-v3-base-tasksource-nli', 'pepa/roberta-small-snli']
 
     for model_name in model_name_list:
 
@@ -106,14 +109,23 @@ def important_word_extract(args):
             model.zero_grad()
 
             important_word = list()
+            word_ix_list = list()
 
             if args.word_importance_method == 'Integrated_Gradients':
-                encoded_dict = tokenizer(text, 
-                                            max_length=args.src_max_len,
-                                            padding='max_length',
-                                            truncation=True,
-                                            return_tensors='pt'
-                                            )
+                if args.data_name == 'IMDB':
+                    encoded_dict = tokenizer(text, 
+                                                max_length=args.src_max_len,
+                                                padding='max_length',
+                                                truncation=True,
+                                                return_tensors='pt'
+                                                )
+                elif args.data_name == 'SNLI':
+                    encoded_dict = tokenizer(text[0], text[1], 
+                                                max_length=args.src_max_len,
+                                                padding='max_length',
+                                                truncation=True,
+                                                return_tensors='pt'
+                                                )
                 input_ids = encoded_dict['input_ids'].to(device)
                 attention_mask = encoded_dict['attention_mask'].to(device)
                 try:
@@ -121,39 +133,47 @@ def important_word_extract(args):
                 except KeyError:
                     token_type_ids = None
 
-                mapping_words_ix = list()
-                for word_id in encoded_dict.word_ids():
-                    if word_id is not None:
-                        start, end = encoded_dict.word_to_tokens(word_id)
-                        if start == end - 1:
-                            tokens = [start]
-                        else:
-                            tokens = [start, end-1]
-                        if len(mapping_words_ix) == 0 or mapping_words_ix[-1] != tokens:
-                            mapping_words_ix.append(tokens)
+                word_ids_list = np.array(encoded_dict.word_ids())
+                new_word_ids_list = list()
+                none_count = 0
+
+                for i, w in enumerate(word_ids_list):
+                    if i == 0 and w == None:
+                        new_word_ids_list.append(none_count)
+                        none_count += 1
+                    elif w == None:
+                        new_word_ids_list.append(new_word_ids_list[-1]+none_count)
+                    else:
+                        new_word_ids_list.append(w + none_count)
 
                 with torch.no_grad():
                     pred = predict(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
                     pred_ind = pred[0].argmax(dim=0).item()
 
-                attributions_ig, delta = lig.attribute(input_ids, reference_indices,
+                # attributions_ig, delta = lig.attribute(input_ids, reference_indices,
+                #                                     additional_forward_args=(attention_mask, token_type_ids),
+                #                                     n_steps=args.n_steps, return_convergence_delta=True, internal_batch_size=args.batch_size, target=pred_ind)
+                attributions_ig = lig.attribute(input_ids, reference_indices,
                                                     additional_forward_args=(attention_mask, token_type_ids),
-                                                    n_steps=args.n_steps, return_convergence_delta=True, internal_batch_size=args.batch_size, target=pred_ind)
+                                                    n_steps=args.n_steps, return_convergence_delta=False, internal_batch_size=args.batch_size, target=pred_ind)
+
 
                 attributions_ = attributions_ig.sum(dim=2).squeeze(0)
                 attributions_ = attributions_ / torch.norm(attributions_)
 
                 for ix in attributions_.topk(args.word_importance_topk)[1]:
-                    word_ = tokenizer.decode(input_ids[0][ix])
-                    if word_ in tokenizer.all_special_tokens:
-                        pass
-                    elif word_.startswith("##"):
-                        start_ix, end_ix = mapping_words_ix[encoded_dict.token_to_word(ix.item())]
-                        important_word.append(tokenizer.decode(input_ids[0][start_ix:end_ix+1]))
-                    else:
-                        important_word.append(word_)
 
-                total_results = [(a,b) for a,b in zip(important_word, attributions_[attributions_.topk(args.word_importance_topk)[1]].tolist())]
+                    if ix == 0 or ix == args.src_max_len-1:
+                        word_ = tokenizer.decode(input_ids[0][ix])
+                    elif new_word_ids_list[ix-1] == new_word_ids_list[ix] or new_word_ids_list[ix+1] == new_word_ids_list[ix]:
+                        total_word_index_list = np.where(np.array(new_word_ids_list) == new_word_ids_list[ix])[0]
+                        word_ = tokenizer.decode(input_ids[0][total_word_index_list])
+                    else:
+                        word_ = tokenizer.decode(input_ids[0][ix])
+                    
+                    important_word.append(word_)
+
+                total_results = [(a,b.item(),c) for a,b,c in zip(important_word, attributions_.topk(args.word_importance_topk)[1], attributions_[attributions_.topk(args.word_importance_topk)[1]].tolist())]
 
             elif args.word_importance_method == 'Lime':
                 exp = explainer.explain_instance(text, predictor, num_features=args.word_importance_topk, num_samples=500)

@@ -49,10 +49,10 @@ if __name__=='__main__':
     # Word improtance extract setting
     parser.add_argument('--word_importance_method', default='Integrated_Gradients', choices=['Lime', 'Integrated_Gradients'],
                         help='')
-    parser.add_argument('--n_steps', default=300, type=int,
-                        help='; Default is 300')
-    parser.add_argument('--word_importance_topk', default=5, type=int,
-                        help='; Default is 5')
+    parser.add_argument('--n_steps', default=500, type=int,
+                        help='; Default is 500')
+    parser.add_argument('--word_importance_topk', default=10, type=int,
+                        help='; Default is 10')
     parser.add_argument('--total_split_num', default=1, type=int,
                         help='; Default is 1')
     parser.add_argument('--split_num', default=1, type=int,

@@ -71,4 +71,23 @@ def data_load(data_path:str = None, data_name:str = None):
         total_src_list['test'] = np.array(dataset['test']['sentence'])
         total_trg_list['test'] = np.array(dataset['test']['label'])
 
+    if data_name == 'SNLI':
+
+        dataset = load_dataset("snli")
+
+        hypothesis_train = dataset['train']['hypothesis']
+        premise_train = dataset['train']['premise']
+        total_src_list['train'] = np.array([(h, p) for h, p in zip(hypothesis_train, premise_train)])
+        total_trg_list['train'] = np.array(dataset['train']['label'])
+
+        hypothesis_valid = dataset['validation']['hypothesis']
+        premise_valid = dataset['validation']['premise']
+        total_src_list['valid'] = np.array([(h, p) for h, p in zip(hypothesis_valid, premise_valid)])
+        total_trg_list['valid'] = np.array(dataset['validation']['label'])
+
+        hypothesis_test = dataset['test']['hypothesis']
+        premise_test = dataset['test']['premise']
+        total_src_list['test'] = np.array([(h, p) for h, p in zip(hypothesis_test, premise_test)])
+        total_trg_list['test'] = np.array(dataset['test']['label'])
+
     return total_src_list, total_trg_list
