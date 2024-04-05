@@ -63,11 +63,13 @@ def important_word_extract(args):
     for i in range(len(total_src_list['train'])):
         data_[i] = dict()
 
-    if args.data_name == 'IMDB':
+    if args.data_name == 'IMDB' or args.data_name == 'SST2':
         model_name_list = ['lvwerra/bert-imdb', 'fabriceyhc/bert-base-uncased-imdb', 'aychang/roberta-base-imdb', 'lvwerra/distilbert-imdb', 'JiaqiLee/imdb-finetuned-bert-base-uncased']
     elif args.data_name == 'SNLI':
         model_name_list = ['Alireza1044/albert-base-v2-mnli', "cross-encoder/nli-distilroberta-base", 'cross-encoder/nli-deberta-v3-base', 'sileod/deberta-v3-base-tasksource-nli', 'pepa/roberta-small-snli']
-
+    elif args.data_name == 'RTE':
+        model_name_list = ['textattack/roberta-base-RTE', 'gchhablani/bert-base-cased-finetuned-rte', 'yoshitomo-matsubara/bert-large-uncased-rte', 'textattack/distilbert-base-uncased-RTE', 'JeremiahZ/roberta-base-rte']
+    
     for model_name in model_name_list:
 
         write_log(logger, f"{model_name} model start...")
@@ -77,7 +79,7 @@ def important_word_extract(args):
         model.eval()
         model.to(device)
 
-        if args.data_name == 'IMDB':
+        if args.data_name == 'IMDB' or args.data_name == 'SST2':
             class_names = ['negative', 'positive']
 
         def predict(input_ids, attention_mask, token_type_ids=None):
@@ -112,14 +114,14 @@ def important_word_extract(args):
             word_ix_list = list()
 
             if args.word_importance_method == 'Integrated_Gradients':
-                if args.data_name == 'IMDB':
+                if args.data_name == 'IMDB' or args.data_name == 'SST2':
                     encoded_dict = tokenizer(text, 
                                                 max_length=args.src_max_len,
                                                 padding='max_length',
                                                 truncation=True,
                                                 return_tensors='pt'
                                                 )
-                elif args.data_name == 'SNLI':
+                elif args.data_name == 'SNLI' or args.data_name == 'RTE':
                     encoded_dict = tokenizer(text[0], text[1], 
                                                 max_length=args.src_max_len,
                                                 padding='max_length',
@@ -181,8 +183,11 @@ def important_word_extract(args):
 
                 # important_word = [x[0] for x in total_results]
                 # score_list_ = [x[1] for x in total_results]
-
-            data_[i]['text'] = text
+            if args.data_name == 'SNLI' or args.data_name == 'RTE':
+                data_[i]['text1'] = text[0]
+                data_[i]['text2'] = text[1]
+            else:
+                data_[i]['text'] = text
             data_[i][model_name] = total_results
 
     save_path = os.path.join(args.preprocess_path, f'important_word_{args.word_importance_method}_{args.data_name}_{args.word_importance_topk}_{args.split_num}_{args.total_split_num}.json')

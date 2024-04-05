@@ -90,4 +90,23 @@ def data_load(data_path:str = None, data_name:str = None):
         total_src_list['test'] = np.array([(h, p) for h, p in zip(hypothesis_test, premise_test)])
         total_trg_list['test'] = np.array(dataset['test']['label'])
 
+    if data_name == 'RTE':
+
+        dataset = load_dataset("nyu-mll/glue", "rte")
+
+        hypothesis_train = dataset['train']['sentence1']
+        premise_train = dataset['train']['sentence2']
+        total_src_list['train'] = np.array([(h, p) for h, p in zip(hypothesis_train, premise_train)])
+        total_trg_list['train'] = np.array(dataset['train']['label'])
+
+        hypothesis_valid = dataset['validation']['sentence1']
+        premise_valid = dataset['validation']['sentence2']
+        total_src_list['valid'] = np.array([(h, p) for h, p in zip(hypothesis_valid, premise_valid)])
+        total_trg_list['valid'] = np.array(dataset['validation']['label'])
+
+        hypothesis_test = dataset['test']['sentence1']
+        premise_test = dataset['test']['sentence2']
+        total_src_list['test'] = np.array([(h, p) for h, p in zip(hypothesis_test, premise_test)])
+        total_trg_list['test'] = np.array(dataset['test']['label'])
+
     return total_src_list, total_trg_list
