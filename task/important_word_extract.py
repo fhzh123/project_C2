@@ -63,13 +63,21 @@ def important_word_extract(args):
     for i in range(len(total_src_list['train'])):
         data_[i] = dict()
 
-    if args.data_name == 'IMDB' or args.data_name == 'SST2':
+    if args.data_name == 'IMDB':
         model_name_list = ['lvwerra/bert-imdb', 'fabriceyhc/bert-base-uncased-imdb', 'aychang/roberta-base-imdb', 'lvwerra/distilbert-imdb', 'JiaqiLee/imdb-finetuned-bert-base-uncased']
     elif args.data_name == 'SNLI':
         model_name_list = ['Alireza1044/albert-base-v2-mnli', "cross-encoder/nli-distilroberta-base", 'cross-encoder/nli-deberta-v3-base', 'sileod/deberta-v3-base-tasksource-nli', 'pepa/roberta-small-snli']
     elif args.data_name == 'RTE':
         model_name_list = ['textattack/roberta-base-RTE', 'gchhablani/bert-base-cased-finetuned-rte', 'yoshitomo-matsubara/bert-large-uncased-rte', 'textattack/distilbert-base-uncased-RTE', 'JeremiahZ/roberta-base-rte']
-    
+    elif args.data_name == 'SST2':
+        model_name_list = ['Duopero/distilbert-base-uncased-finetuned-2-sst2', 'syedkhalid076/RoBERTa-Sentimental-Analysis-Model', 'Kai1014/distilbert-finetuned', 'distilbert/distilbert-base-uncased-finetuned-sst-2-english', 'echarlaix/bert-base-uncased-sst2-acc91.1-d37-hybrid']
+    elif args.data_name == 'TREC6':
+        model_name_list = ['aychang/bert-base-cased-trec-coarse', 'carrassi-ni/bert-base-trec-question-classification', 'aychang/distilbert-base-cased-trec-coarse']
+    elif args.data_name == 'rotten':
+        model_name_list = ['RJZauner/distilbert_rotten_tomatoes_sentiment_classifier', 'xianzhew/distilbert-base-uncased_rotten_tomatoes', 'jjglilleberg/distilbert-base-uncased-finetuned-rotten-tomatoes', 'Hazqeel/electra-small-finetuned-sst2-rotten_tomatoes-distilled', 'pig4431/rtm_ELECTRA_5E']
+    elif args.data_name == 'yahoo_topic':
+        model_name_list = []
+
     for model_name in model_name_list:
 
         write_log(logger, f"{model_name} model start...")

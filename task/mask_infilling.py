@@ -10,7 +10,7 @@ from torch.utils.data.dataset import Dataset
 from peft import get_peft_config, get_peft_model, get_peft_model_state_dict, PrefixTuningConfig, TaskType, PeftModel, PeftConfig
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, default_data_collator, get_linear_schedule_with_warmup
 # Import custom modules
-from dataset import MaskingCustomDataset
+from project_C2.model.dataset import MaskingCustomDataset
 from utils.data_utils import data_load
 from utils.tqdm_utils import TqdmLoggingHandler, write_log
 

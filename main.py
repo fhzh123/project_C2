@@ -4,6 +4,7 @@ import time
 import argparse
 # Import custom modules
 from task.important_word_extract import important_word_extract
+from task.cls_training import model_training
 # Utils
 from utils.etc_utils import str2bool, path_check, set_random_seed
 
@@ -17,6 +18,9 @@ def main(args):
 
     # Path setting
     path_check(args)
+
+    if args.model_training:
+        model_training(args)
 
     if args.word_extract:
         important_word_extract(args)
@@ -33,7 +37,7 @@ if __name__=='__main__':
     parser.add_argument('--data_name', default='IMDB', type=str,
                         help='')
     parser.add_argument('--word_extract', action='store_true')
-    parser.add_argument('--recon_training', action='store_true')
+    parser.add_argument('--model_training', action='store_true')
     parser.add_argument('--testing', action='store_true')
     parser.add_argument('--augment', action='store_true')
     parser.add_argument('--resume', action='store_true')
@@ -78,7 +82,7 @@ if __name__=='__main__':
     # Train setting
     parser.add_argument('--random_seed', default=42, type=int,
                         help='Random seed setting; Default is 42')
-    parser.add_argument('--cls_num_epochs', default=5, type=int,
+    parser.add_argument('--cls_num_epochs', default=15, type=int,
                         help='Number of epochs; Default is 5')
     parser.add_argument('--recon_num_epochs', default=30, type=int,
                         help='Number of epochs; Default is 30')

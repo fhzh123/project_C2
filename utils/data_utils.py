@@ -71,6 +71,10 @@ def data_load(data_path:str = None, data_name:str = None):
         total_src_list['test'] = np.array(dataset['test']['sentence'])
         total_trg_list['test'] = np.array(dataset['test']['label'])
 
+    if data_name == 'tweet_emoji':
+
+        dataset = load_dataset("tweet_eval", "emoji")
+
     if data_name == 'SNLI':
 
         dataset = load_dataset("snli")
